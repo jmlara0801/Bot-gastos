@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistente de Gastos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0d1f17;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  #header {
+    background: linear-gradient(135deg,#0d2b1f,#1a4a34);
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(125,211,176,0.2);
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg,#1a4a3a,#2d7a5e);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; box-shadow: 0 0 20px #2d7a5e44; flex-shrink: 0;
+  }
+  #messages {
+    flex: 1; padding: 20px 16px;
+    overflow-y: auto; display: flex; flex-direction: column;
+    gap: 4px;
+  }
+  .bot-msg { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+  .bot-bubble {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(125,211,176,0.2);
+    border-radius: 4px 16px 16px 16px;
+    padding: 12px 16px; max-width: 82%;
+    color: #e8f5ee; font-size: 14px; line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .bot-avatar {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#1a4a3a,#2d7a5e);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .user-msg { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+  .user-bubble {
+    background: linear-gradient(135deg,#1a5c42,#2d7a5e);
+    border-radius: 16px 4px 16px 16px;
+    padding: 12px 16px; max-width: 78%;
+    color: #e8f5ee; font-size: 14px; line-height: 1.6;
+  }
+  .user-bubble img { width: 100%; max-width: 200px; border-radius: 8px; margin-bottom: 6px; display: block; }
+  .confirm-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(125,211,176,0.3);
+    border-radius: 12px; padding: 16px;
+    margin: 4px 0 10px 44px;
+  }
+  .confirm-title { color: #7dd3b0; font-weight: 700; margin-bottom: 10px; font-size: 13px; }
+  .confirm-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 13px;
+  }
+  .confirm-row span:first-child { color: #7dd3b0; }
+  .confirm-row span:last-child { color: #e8f5ee; font-weight: 500; }
+  .btn-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .btn-confirm {
+    background: linear-gradient(135deg,#1a5c42,#2d7a5e);
+    color: #e8f5ee; border: none; border-radius: 8px;
+    padding: 9px 18px; cursor: pointer; font-size: 13px;
+    font-weight: 600; flex: 1; font-family: inherit;
+  }
+  .btn-edit {
+    background: rgba(255,255,255,0.08); color: #7dd3b0;
+    border: 1px solid rgba(125,211,176,0.3); border-radius: 8px;
+    padding: 9px 18px; cursor: pointer; font-size: 13px;
+    flex: 1; font-family: inherit;
+  }
+  .btn-cancel {
+    background: transparent; color: #aaa;
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+    padding: 9px 14px; cursor: pointer; font-size: 13px;
+    font-family: inherit;
+  }
+  .rubro-selector { margin: 4px 0 10px 44px; }
+  .rubro-search {
+    width: 100%; padding: 8px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(125,211,176,0.3);
+    color: #e8f5ee; font-size: 13px; outline: none;
+    margin-bottom: 8px; font-family: inherit;
+  }
+  .rubro-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .rubro-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(125,211,176,0.15);
+    border-radius: 8px; padding: 8px 12px;
+    cursor: pointer; text-align: left;
+    color: #e8f5ee; font-size: 12px; font-family: inherit;
+    width: 100%;
+  }
+  .rubro-item:hover { background: rgba(125,211,176,0.1); }
+  .rubro-name { color: #7dd3b0; font-weight: 600; }
+  #image-preview {
+    margin: 0 16px 8px; padding: 10px;
+    background: rgba(255,255,255,0.05); border-radius: 10px;
+    display: none; align-items: center; gap: 10px;
+    border: 1px solid rgba(125,211,176,0.2);
+  }
+  #image-preview img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+  #image-preview span { color: #7dd3b0; font-size: 12px; flex: 1; }
+  #image-preview button { background: transparent; border: none; color: #aaa; cursor: pointer; font-size: 18px; }
+  #input-area {
+    padding: 12px 16px 28px;
+    background: rgba(13,31,23,0.97);
+    border-top: 1px solid rgba(125,211,176,0.15);
+    display: flex; gap: 8px; align-items: flex-end;
+    position: sticky; bottom: 0;
+  }
+  #cam-btn {
+    width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(125,211,176,0.2);
+    color: #7dd3b0; cursor: pointer; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #text-input {
+    flex: 1; padding: 10px 14px; border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(125,211,176,0.2);
+    color: #e8f5ee; font-size: 14px; outline: none;
+    resize: none; line-height: 1.5; font-family: inherit;
+    min-height: 42px;
+  }
+  #send-btn {
+    width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg,#1a5c42,#2d7a5e);
+    border: none; color: #e8f5ee; cursor: pointer;
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.2s;
+  }
+  #send-btn:disabled { opacity: 0.3; cursor: default; }
+  .dots { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #7dd3b0; animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+  .edit-options { margin: 4px 0 10px 44px; display: flex; flex-direction: column; gap: 6px; }
+  .edit-opt {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(125,211,176,0.2);
+    border-radius: 8px; padding: 9px 14px;
+    color: #7dd3b0; cursor: pointer; font-size: 13px;
+    text-align: left; font-family: inherit; width: 100%;
+  }
+  .edit-input-row { margin: 4px 0 10px 44px; display: flex; gap: 8px; }
+  .edit-input {
+    flex: 1; padding: 9px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(125,211,176,0.3);
+    color: #e8f5ee; font-size: 13px; outline: none; font-family: inherit;
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="avatar">💰</div>
+  <div>
+    <div style="color:#e8f5ee;font-weight:700;font-size:16px">Asistente de Gastos</div>
+    <div style="color:#7dd3b0;font-size:12px">Planilla familiar · Google Drive</div>
+  </div>
+</div>
+
+<div id="messages"></div>
+
+<div id="image-preview">
+  <img id="preview-img" src="" alt="preview">
+  <span>Imagen lista para analizar</span>
+  <button onclick="clearImage()">✕</button>
+</div>
+
+<div id="input-area">
+  <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(event)">
+  <button id="cam-btn" onclick="document.getElementById('file-input').click()">📷</button>
+  <textarea id="text-input" placeholder="Escribe un gasto o sube una foto..." rows="1"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();handleSend()}"
+    oninput="autoResize(this)"></textarea>
+  <button id="send-btn" onclick="handleSend()" disabled>➤</button>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CONFIGURACIÓN — solo cambia estas dos líneas si es necesario
+const CLAUDE_MODEL = "claude-sonnet-4-20250514";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVfBqP830bBuqbufNfynip6hc0qW2coCkaj5tSZUQIcJDmd7FuC-38ZZozNTPYBq1HBg/exec";
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const RUBROS = [
+  {r1:"Canasta mensual",r2:"Alimentación",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Canasta adicional",r2:"Alimentación",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Pensión Alimenticia",r2:"Alimentación",tipo:"Egreso",nombre:"André"},
+  {r1:"Mensualidad Educación André",r2:"Educación",tipo:"Egreso",nombre:"André"},
+  {r1:"Mensualidad Educación Ale",r2:"Educación",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Gastos educativos André",r2:"Educación",tipo:"Egreso",nombre:"André"},
+  {r1:"Gastos educativos Ale",r2:"Educación",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Adicional André",r2:"Gastos Adicional",tipo:"Egreso",nombre:"André"},
+  {r1:"Adicional Ale",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Adicional LP",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Adicional JM",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Adicional FAM",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Adicional Mamá",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Mamá"},
+  {r1:"Gastos Hogar",r2:"Hogar",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Prestamos entregados",r2:"Prestamos entregados",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Recreación André",r2:"Recreación",tipo:"Egreso",nombre:"André"},
+  {r1:"Recreación Ale",r2:"Recreación",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Recreación FAM",r2:"Recreación",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Salario Quincena",r2:"Salario",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Salario fin de mes",r2:"Salario",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Gratificación",r2:"Beneficios sociales",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Bono extra",r2:"Salario extra",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Salud André",r2:"Salud",tipo:"Egreso",nombre:"André"},
+  {r1:"Salud Ale",r2:"Salud",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Salud LP",r2:"Salud",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Salud JM",r2:"Salud",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Gas JM",r2:"Servicios",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Netflix",r2:"Servicios",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Mov Total",r2:"Servicios",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Gas Mamá",r2:"Servicios",tipo:"Egreso",nombre:"Mamá"},
+  {r1:"Agua",r2:"Servicios",tipo:"Egreso",nombre:"Mamá"},
+  {r1:"Luz",r2:"Servicios",tipo:"Egreso",nombre:"Mamá"},
+  {r1:"Combustible",r2:"Transporte",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Pasaje o Taxi LP",r2:"Transporte",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Vestimenta André",r2:"Vestimenta",tipo:"Egreso",nombre:"André"},
+  {r1:"Vestimenta Ale",r2:"Vestimenta",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Vestimenta LP",r2:"Vestimenta",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Vestimenta JM",r2:"Vestimenta",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Intereses banco",r2:"Ingresos extras",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Dev Prestamos agua y Luz",r2:"Prestamos devueltos",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Dev Otros prestamos",r2:"Prestamos devueltos",tipo:"Ingreso",nombre:"Miguel"},
+];
+
+let pendingData = null;
+let imageBase64 = null;
+let imageDataUrl = null;
+let appState = "idle"; // idle | confirm | edit | rubro
+let editField = null;
+let apiKey = null;
+
+const today = new Date();
+const formatDate = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+
+// ── Init ──────────────────────────────
+window.onload = () => {
+  const saved = localStorage.getItem("claudeApiKey");
+  if (saved) {
+    apiKey = saved;
+    addBot("¡Hola Miguel! 👋 Soy tu asistente de gastos.\n\nPuedes:\n• 📷 Subir una foto de un recibo o boleta\n• ✍️ Escribir un gasto manualmente\n\n¿Cómo empezamos?");
+  } else {
+    addBot("👋 Bienvenido. Para funcionar necesito tu API Key de Anthropic.\n\nPégala abajo (empieza con sk-ant-...)");
+    appState = "apikey";
+  }
+  updateSendBtn();
+};
+
+// ── UI helpers ────────────────────────
+function addBot(text, loading=false) {
+  const wrap = document.createElement("div");
+  wrap.className = "bot-msg";
+  wrap.innerHTML = `<div class="bot-avatar">💰</div>`;
+  const bubble = document.createElement("div");
+  bubble.className = "bot-bubble";
+  if (loading) {
+    bubble.innerHTML = `<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    wrap.id = "loading-bubble";
+  } else {
+    bubble.textContent = text;
+  }
+  wrap.appendChild(bubble);
+  document.getElementById("messages").appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function removeLoading() {
+  const el = document.getElementById("loading-bubble");
+  if (el) el.remove();
+}
+
+function addUser(text, imgSrc=null) {
+  const wrap = document.createElement("div");
+  wrap.className = "user-msg";
+  const bubble = document.createElement("div");
+  bubble.className = "user-bubble";
+  if (imgSrc) {
+    const img = document.createElement("img");
+    img.src = imgSrc;
+    bubble.appendChild(img);
+  }
+  if (text) bubble.appendChild(document.createTextNode(text));
+  wrap.appendChild(bubble);
+  document.getElementById("messages").appendChild(wrap);
+  scrollBottom();
+}
+
+function scrollBottom() {
+  setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 50);
+}
+
+function autoResize(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  updateSendBtn();
+}
+
+function updateSendBtn() {
+  const hasText = document.getElementById("text-input").value.trim();
+  document.getElementById("send-btn").disabled = !hasText && !imageBase64;
+}
+
+// ── Image handling ────────────────────
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    imageDataUrl = ev.target.result;
+    imageBase64 = imageDataUrl.split(",")[1];
+    document.getElementById("preview-img").src = imageDataUrl;
+    document.getElementById("image-preview").style.display = "flex";
+    updateSendBtn();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage() {
+  imageBase64 = null; imageDataUrl = null;
+  document.getElementById("image-preview").style.display = "none";
+  document.getElementById("file-input").value = "";
+  updateSendBtn();
+}
+
+// ── Main send ─────────────────────────
+async function handleSend() {
+  const text = document.getElementById("text-input").value.trim();
+  if (!text && !imageBase64) return;
+
+  // API key setup
+  if (appState === "apikey") {
+    if (text.startsWith("sk-ant-")) {
+      apiKey = text;
+      localStorage.setItem("claudeApiKey", apiKey);
+      document.getElementById("text-input").value = "";
+      addUser("••••••••••••••••");
+      addBot("✅ API Key guardada. ¡Listo para registrar gastos!\n\n¿Cómo empezamos?");
+      appState = "idle";
+    } else {
+      addUser(text);
+      document.getElementById("text-input").value = "";
+      addBot("❌ Esa no parece una API Key válida. Debe empezar con sk-ant-");
+    }
+    updateSendBtn();
+    return;
+  }
+
+  // Edit field
+  if (editField) {
+    addUser(text);
+    document.getElementById("text-input").value = "";
+    const val = editField === "importe" ? parseFloat(text) : text;
+    pendingData[editField] = val;
+    editField = null;
+    appState = "confirm";
+    addBot("✔ Actualizado. Confirma el registro:");
+    showConfirmCard();
+    updateSendBtn();
+    return;
+  }
+
+  addUser(text, imageDataUrl);
+  const b64 = imageBase64;
+  document.getElementById("text-input").value = "";
+  clearImage();
+  updateSendBtn();
+
+  const loadEl = addBot("", true);
+
+  try {
+    let extracted;
+    if (b64) {
+      extracted = await analyzeImage(b64, text);
+    } else {
+      extracted = await analyzeText(text);
+    }
+    removeLoading();
+    pendingData = extracted;
+    appState = "confirm";
+    const note = extracted.confianza === "baja"
+      ? "⚠️ Extraje la info con baja confianza. Revisa los datos:"
+      : "Aquí está lo que encontré:";
+    addBot(note);
+    showConfirmCard();
+  } catch(err) {
+    removeLoading();
+    addBot("❌ No pude procesar eso. Intenta con una imagen más clara o describe el gasto.\n\nEj: Taxi 25 soles");
+    console.error(err);
+  }
+}
+
+// ── Claude API calls ──────────────────
+const rubrosStr = RUBROS.map(r=>`"${r.r1}" (${r.r2}, ${r.tipo}, ${r.nombre})`).join(", ");
+
+async function analyzeImage(b64, userText) {
+  const prompt = `Analiza esta imagen de un comprobante de gasto.
+Devuelve SOLO un JSON sin backticks con este formato:
+{"fecha":"DD/MM/YYYY","descripcion":"texto corto","importe":número,"rubro1":"rubro","rubro2":"cat","tipo":"Egreso o Ingreso","nombre":"Miguel/Lissette/André/Alessia/Familia/Mamá","confianza":"alta/media/baja"}
+Fecha de hoy: ${formatDate(today)}. Para egresos el importe es NEGATIVO.
+Rubros disponibles: ${rubrosStr}
+${userText ? `El usuario dice: "${userText}"` : ""}`;
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body: JSON.stringify({
+      model: CLAUDE_MODEL, max_tokens:800,
+      messages:[{role:"user",content:[
+        {type:"image",source:{type:"base64",media_type:"image/jpeg",data:b64}},
+        {type:"text",text:prompt}
+      ]}]
+    })
+  });
+  const d = await res.json();
+  const txt = d.content?.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim();
+  return JSON.parse(txt);
+}
+
+async function analyzeText(userText) {
+  const prompt = `El usuario describe un gasto: "${userText}"
+Devuelve SOLO un JSON sin backticks:
+{"fecha":"DD/MM/YYYY","descripcion":"texto","importe":número,"rubro1":"rubro","rubro2":"cat","tipo":"Egreso o Ingreso","nombre":"Miguel/Lissette/André/Alessia/Familia/Mamá","confianza":"alta/media/baja"}
+Hoy: ${formatDate(today)}. Egresos con importe NEGATIVO.
+Rubros: ${rubrosStr}`;
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body: JSON.stringify({
+      model: CLAUDE_MODEL, max_tokens:600,
+      messages:[{role:"user",content:prompt}]
+    })
+  });
+  const d = await res.json();
+  const txt = d.content?.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim();
+  return JSON.parse(txt);
+}
+
+// ── Confirm card ──────────────────────
+function showConfirmCard() {
+  const d = pendingData;
+  const card = document.createElement("div");
+  card.className = "confirm-card";
+  card.id = "confirm-card";
+  const rows = [
+    ["📅 Fecha", d.fecha],
+    ["📝 Descripción", d.descripcion],
+    ["💵 Importe", `S/ ${Math.abs(d.importe)}`],
+    ["🏷️ Rubro 1", d.rubro1],
+    ["📂 Rubro 2", d.rubro2],
+    ["↕️ Tipo", d.tipo],
+    ["👤 Nombre", d.nombre],
+  ];
+  card.innerHTML = `<div class="confirm-title">✅ Confirma el registro:</div>` +
+    rows.map(([k,v])=>`<div class="confirm-row"><span>${k}</span><span>${v}</span></div>`).join("") +
+    `<div class="btn-row">
+      <button class="btn-confirm" onclick="doConfirm()">✅ Registrar</button>
+      <button class="btn-edit" onclick="showEditOptions()">✏️ Editar</button>
+      <button class="btn-cancel" onclick="cancelConfirm()">✕</button>
+    </div>`;
+  document.getElementById("messages").appendChild(card);
+  scrollBottom();
+}
+
+function removeCard(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// ── Register in Drive ─────────────────
+async function doConfirm() {
+  removeCard("confirm-card");
+  removeCard("edit-options");
+  const data = pendingData;
+  pendingData = null;
+  appState = "idle";
+
+  const parts = data.fecha.split("/");
+  const mes = parseInt(parts[1]);
+  const año = parseInt(parts[2]);
+  const concatenar = `${mes}.${año}`;
+
+  const params = new URLSearchParams({
+    fecha: data.fecha, mes, año, concatenar,
+    descripcion: data.descripcion,
+    importe: data.importe,
+    rubro1: data.rubro1, rubro2: data.rubro2,
+    tipo: data.tipo, nombre: data.nombre
+  });
+
+  const loadEl = addBot("", true);
+
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const json = await res.json();
+    removeLoading();
+    if (json.status === "OK") {
+      addBot(`✅ ¡Registrado en tu planilla!\n\n📊 ${data.descripcion} — S/ ${Math.abs(data.importe)}\n🏷️ ${data.rubro1} · ${data.nombre}\n📅 ${data.fecha}\n\n¿Tienes otro gasto?`);
+    } else {
+      addBot(`⚠️ El script respondió con error:\n${json.mensaje}`);
+    }
+  } catch(err) {
+    removeLoading();
+    addBot(`⚠️ No se pudo conectar con el script.\nError: ${err.message}\n\nDatos para copiar:\n${data.fecha} | ${data.descripcion} | S/${Math.abs(data.importe)} | ${data.rubro1} | ${data.nombre}`);
+  }
+}
+
+function cancelConfirm() {
+  removeCard("confirm-card");
+  pendingData = null;
+  appState = "idle";
+  addBot("Cancelado. ¿Qué más necesitas?");
+}
+
+// ── Edit options ──────────────────────
+function showEditOptions() {
+  removeCard("confirm-card");
+  appState = "edit";
+  const opts = document.createElement("div");
+  opts.className = "edit-options";
+  opts.id = "edit-options";
+  ["fecha","descripcion","importe","nombre"].forEach(f => {
+    const btn = document.createElement("button");
+    btn.className = "edit-opt";
+    btn.textContent = `Cambiar ${f}`;
+    btn.onclick = () => { removeCard("edit-options"); startEditField(f); };
+    opts.appendChild(btn);
+  });
+  const rubroBtn = document.createElement("button");
+  rubroBtn.className = "edit-opt";
+  rubroBtn.textContent = "Cambiar rubro";
+  rubroBtn.onclick = () => { removeCard("edit-options"); showRubroSelector(); };
+  opts.appendChild(rubroBtn);
+  const backBtn = document.createElement("button");
+  backBtn.className = "btn-cancel";
+  backBtn.style.marginTop = "4px";
+  backBtn.textContent = "Volver";
+  backBtn.onclick = () => { removeCard("edit-options"); appState = "confirm"; showConfirmCard(); };
+  opts.appendChild(backBtn);
+  document.getElementById("messages").appendChild(opts);
+  scrollBottom();
+}
+
+function startEditField(field) {
+  editField = field;
+  addBot(`Escribe el nuevo valor para ${field}:`);
+  document.getElementById("text-input").focus();
+}
+
+// ── Rubro selector ────────────────────
+function showRubroSelector() {
+  appState = "rubro";
+  const wrap = document.createElement("div");
+  wrap.className = "rubro-selector";
+  wrap.id = "rubro-selector";
+  const input = document.createElement("input");
+  input.className = "rubro-search";
+  input.placeholder = "Buscar rubro...";
+  input.oninput = () => renderRubros(list, input.value);
+  wrap.appendChild(input);
+  const list = document.createElement("div");
+  list.className = "rubro-list";
+  wrap.appendChild(list);
+  renderRubros(list, "");
+  const cancel = document.createElement("button");
+  cancel.className = "btn-cancel";
+  cancel.textContent = "Cancelar";
+  cancel.style.marginTop = "6px";
+  cancel.onclick = () => { removeCard("rubro-selector"); appState = "confirm"; showConfirmCard(); };
+  wrap.appendChild(cancel);
+  document.getElementById("messages").appendChild(wrap);
+  scrollBottom();
+}
+
+function renderRubros(container, search) {
+  container.innerHTML = "";
+  RUBROS.filter(r =>
+    r.r1.toLowerCase().includes(search.toLowerCase()) ||
+    r.r2.toLowerCase().includes(search.toLowerCase())
+  ).forEach(r => {
+    const btn = document.createElement("button");
+    btn.className = "rubro-item";
+    btn.innerHTML = `<span class="rubro-name">${r.r1}</span> · ${r.r2} · ${r.tipo} · ${r.nombre}`;
+    btn.onclick = () => {
+      pendingData.rubro1 = r.r1;
+      pendingData.rubro2 = r.r2;
+      pendingData.tipo = r.tipo;
+      pendingData.nombre = r.nombre;
+      removeCard("rubro-selector");
+      appState = "confirm";
+      addBot("Rubro actualizado. Confirma:");
+      showConfirmCard();
+    };
+    container.appendChild(btn);
+  });
+}
+
+document.getElementById("text-input").addEventListener("input", updateSendBtn);
+</script>
+</body>
+</html>
