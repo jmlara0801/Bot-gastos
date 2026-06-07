@@ -77,8 +77,8 @@
 </div>
 
 <script>
-const GEMINI_KEY = "AIzaSyDPq_TJJmhQhYXQhWQZo1Jc3MAiHIQkRUo";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+const GEMINI_KEY = "AQ.Ab8RN6IKDCQpe3OuJPVid_-uyrisSvDmXkcA8WuT4IFAygtx0w";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVfBqP830bBuqbufNfynip6hc0qW2coCkaj5tSZUQIcJDmd7FuC-38ZZozNTPYBq1HBg/exec";
 
 const RUBROS = [
@@ -87,8 +87,12 @@ const RUBROS = [
   {r1:"Pensión Alimenticia",r2:"Alimentación",tipo:"Egreso",nombre:"André"},
   {r1:"Mensualidad Educación André",r2:"Educación",tipo:"Egreso",nombre:"André"},
   {r1:"Mensualidad Educación Ale",r2:"Educación",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Mensualidad Educación JM",r2:"Educación",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Mensualidad Educación LP",r2:"Educación",tipo:"Egreso",nombre:"Miguel"},
   {r1:"Gastos educativos André",r2:"Educación",tipo:"Egreso",nombre:"André"},
   {r1:"Gastos educativos Ale",r2:"Educación",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Gastos educativos JM",r2:"Educación",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Gastos educativos LP",r2:"Educación",tipo:"Egreso",nombre:"Miguel"},
   {r1:"Adicional André",r2:"Gastos Adicional",tipo:"Egreso",nombre:"André"},
   {r1:"Adicional Ale",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Alessia"},
   {r1:"Adicional LP",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Lissette"},
@@ -96,33 +100,49 @@ const RUBROS = [
   {r1:"Adicional FAM",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Familia"},
   {r1:"Adicional Mamá",r2:"Gastos Adicional",tipo:"Egreso",nombre:"Mamá"},
   {r1:"Gastos Hogar",r2:"Hogar",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Alquiler vivienda",r2:"Hogar",tipo:"Egreso",nombre:"Familia"},
+  {r1:"Otros Intereses",r2:"Ingresos extras",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Otros Ingresos JM",r2:"Ingresos extras",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Otros Ingresos LP",r2:"Ingresos extras",tipo:"Ingreso",nombre:"Lissette"},
   {r1:"Prestamos entregados",r2:"Prestamos entregados",tipo:"Egreso",nombre:"Miguel"},
   {r1:"Recreación André",r2:"Recreación",tipo:"Egreso",nombre:"André"},
   {r1:"Recreación Ale",r2:"Recreación",tipo:"Egreso",nombre:"Alessia"},
+  {r1:"Recreación LP",r2:"Recreación",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Recreación JM",r2:"Recreación",tipo:"Egreso",nombre:"Miguel"},
   {r1:"Recreación FAM",r2:"Recreación",tipo:"Egreso",nombre:"Familia"},
   {r1:"Salario Quincena",r2:"Salario",tipo:"Ingreso",nombre:"Miguel"},
-  {r1:"Salario fin de mes",r2:"Salario",tipo:"Ingreso",nombre:"Miguel"},
   {r1:"Gratificación",r2:"Beneficios sociales",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Bono desempeño",r2:"Salario extra",tipo:"Ingreso",nombre:"Miguel"},
   {r1:"Bono extra",r2:"Salario extra",tipo:"Ingreso",nombre:"Miguel"},
   {r1:"Salud André",r2:"Salud",tipo:"Egreso",nombre:"André"},
   {r1:"Salud Ale",r2:"Salud",tipo:"Egreso",nombre:"Alessia"},
   {r1:"Salud LP",r2:"Salud",tipo:"Egreso",nombre:"Lissette"},
   {r1:"Salud JM",r2:"Salud",tipo:"Egreso",nombre:"Miguel"},
   {r1:"Gas JM",r2:"Servicios",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"u2",r2:"Servicios",tipo:"Egreso",nombre:"Familia"},
   {r1:"Netflix",r2:"Servicios",tipo:"Egreso",nombre:"Familia"},
   {r1:"Mov Total",r2:"Servicios",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Celular",r2:"Servicios",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Internet",r2:"Servicios",tipo:"Egreso",nombre:"Familia"},
   {r1:"Gas Mamá",r2:"Servicios",tipo:"Egreso",nombre:"Mamá"},
+  {r1:"Gas Fam",r2:"Servicios",tipo:"Egreso",nombre:"Familia"},
   {r1:"Agua",r2:"Servicios",tipo:"Egreso",nombre:"Mamá"},
   {r1:"Luz",r2:"Servicios",tipo:"Egreso",nombre:"Mamá"},
+  {r1:"Luz Fam",r2:"Servicios",tipo:"Egreso",nombre:"Familia"},
   {r1:"Combustible",r2:"Transporte",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Pasaje o Taxi JM",r2:"Transporte",tipo:"Egreso",nombre:"Miguel"},
   {r1:"Pasaje o Taxi LP",r2:"Transporte",tipo:"Egreso",nombre:"Lissette"},
+  {r1:"Gastos Vehiculares",r2:"Gastos Vehiculares",tipo:"Egreso",nombre:"Familia"},
   {r1:"Vestimenta André",r2:"Vestimenta",tipo:"Egreso",nombre:"André"},
   {r1:"Vestimenta Ale",r2:"Vestimenta",tipo:"Egreso",nombre:"Alessia"},
   {r1:"Vestimenta LP",r2:"Vestimenta",tipo:"Egreso",nombre:"Lissette"},
   {r1:"Vestimenta JM",r2:"Vestimenta",tipo:"Egreso",nombre:"Miguel"},
+  {r1:"Salario fin de mes",r2:"Salario",tipo:"Ingreso",nombre:"Miguel"},
   {r1:"Intereses banco",r2:"Ingresos extras",tipo:"Ingreso",nombre:"Miguel"},
-  {r1:"Dev Prestamos agua y Luz",r2:"Prestamos devueltos",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Intereses David",r2:"Ingresos extras",tipo:"Ingreso",nombre:"Miguel"},
   {r1:"Dev Otros prestamos",r2:"Prestamos devueltos",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Dev Prestamos agua y Luz",r2:"Prestamos devueltos",tipo:"Ingreso",nombre:"Miguel"},
+  {r1:"Dev Prestamo David",r2:"Prestamos devueltos",tipo:"Ingreso",nombre:"Miguel"},
 ];
 
 let pendingData = null;
@@ -134,7 +154,6 @@ let editField = null;
 
 const today = new Date();
 const formatDate = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-const rubrosStr = RUBROS.map(r=>`"${r.r1}" (${r.r2}, ${r.tipo}, ${r.nombre})`).join(", ");
 
 window.onload = () => {
   addBot("¡Hola Miguel! 👋 Soy tu asistente de gastos.\n\nPuedes:\n• 📷 Subir una foto de un recibo o boleta\n• ✍️ Escribir un gasto manualmente\n\n¿Cómo empezamos?");
@@ -204,6 +223,7 @@ async function handleSend() {
   const text = document.getElementById("text-input").value.trim();
   if (!text && !imageBase64) return;
 
+  // Si hay un campo en edición, aplicar el valor directamente
   if (editField) {
     addUser(text);
     document.getElementById("text-input").value = "";
@@ -211,6 +231,68 @@ async function handleSend() {
     editField = null; appState = "confirm";
     addBot("✔ Actualizado. Confirma el registro:");
     showConfirmCard(); updateSendBtn(); return;
+  }
+
+  // Si hay gasto pendiente y escribe texto sin imagen nueva → interpretar como corrección
+  if (appState === "confirm" && pendingData && !imageBase64) {
+    addUser(text);
+    document.getElementById("text-input").value = "";
+    updateSendBtn();
+    addBot("", true);
+    try {
+      // Buscar rubros que coincidan con la instrucción del usuario
+      const instruccionLower = text.toLowerCase();
+      const palabras = instruccionLower.split(" ").filter(w => w.length > 3);
+      const rubrosCoincidentes = RUBROS.filter(r =>
+        palabras.some(w => r.r1.toLowerCase().includes(w) || r.r2.toLowerCase().includes(w))
+      );
+
+      if (rubrosCoincidentes.length === 0) {
+        // Usar Gemini solo para identificar el número de rubro — NO para cambiar otros campos
+        const listaRubrosCorr = RUBROS.map((r,i) => `${i+1}. "${r.r1}" | ${r.r2} | ${r.tipo} | ${r.nombre}`).join("\n");
+        const prompt = "El usuario quiere cambiar el rubro de un gasto a: \"" + text + "\".\n" +
+          "Lista de rubros disponibles:\n" + listaRubrosCorr + "\n" +
+          "Si hay UNA opción clara devuelve solo su número (ej: 6).\n" +
+          "Si hay VARIAS opciones posibles devuelve los números separados por coma (ej: 4,5).\n" +
+          "Devuelve SOLO el número o números, sin texto adicional.";
+        const resp = await callGemini([{text: prompt}]);
+        const indices = resp.trim().split(",").map(n => parseInt(n.trim()) - 1).filter(n => !isNaN(n) && n >= 0 && n < RUBROS.length);
+        const coincidencias = indices.map(i => RUBROS[i]).filter(Boolean);
+        removeLoading();
+        if (coincidencias.length === 1) {
+          // Solo actualizar rubro — NO tocar descripcion, importe ni fecha
+          pendingData.rubro1 = coincidencias[0].r1;
+          pendingData.rubro2 = coincidencias[0].r2;
+          pendingData.tipo = coincidencias[0].tipo;
+          pendingData.nombre = coincidencias[0].nombre;
+          addBot("✔ Rubro actualizado. Confirma el registro:");
+          showConfirmCard();
+        } else if (coincidencias.length > 1) {
+          mostrarOpcionesRubro(coincidencias);
+        } else {
+          addBot("No encontré ese rubro. Elige de la lista:");
+          showRubroSelector();
+        }
+      } else if (rubrosCoincidentes.length === 1) {
+        // Solo una coincidencia — actualizar SOLO rubro, no tocar importe ni descripcion
+        pendingData.rubro1 = rubrosCoincidentes[0].r1;
+        pendingData.rubro2 = rubrosCoincidentes[0].r2;
+        pendingData.tipo = rubrosCoincidentes[0].tipo;
+        pendingData.nombre = rubrosCoincidentes[0].nombre;
+        removeLoading();
+        addBot("✔ Rubro actualizado. Confirma el registro:");
+        showConfirmCard();
+      } else {
+        // Múltiples coincidencias — preguntar sin tocar nada
+        removeLoading();
+        mostrarOpcionesRubro(rubrosCoincidentes);
+      }
+    } catch(err) {
+      removeLoading();
+      addBot("No pude interpretar la corrección. Usa el botón ✏️ Editar para cambiar campos específicos.");
+      showConfirmCard();
+    }
+    return;
   }
 
   addUser(text, imageDataUrl);
@@ -248,11 +330,13 @@ async function callGemini(parts) {
 }
 
 async function analyzeImage(b64, mime, userText) {
+  const listaRubros = RUBROS.map((r,i) => `${i+1}. rubro1="${r.r1}" rubro2="${r.r2}" tipo="${r.tipo}" nombre="${r.nombre}"`).join("\n");
   const prompt = `Analiza este comprobante de gasto y devuelve SOLO un JSON válido sin backticks:
-{"fecha":"DD/MM/YYYY","descripcion":"texto corto","importe":numero,"rubro1":"rubro","rubro2":"categoria","tipo":"Egreso o Ingreso","nombre":"Miguel o Lissette o André o Alessia o Familia o Mamá","confianza":"alta o media o baja"}
+{"fecha":"DD/MM/YYYY","descripcion":"texto corto","importe":numero,"rubro1":"...","rubro2":"...","tipo":"...","nombre":"...","confianza":"alta o media o baja"}
 Hoy: ${formatDate(today)}. Egresos con importe NEGATIVO. Ingresos POSITIVO.
-Rubros disponibles: ${rubrosStr}
-${userText ? `Usuario dice: "${userText}"` : ""}`;
+CRÍTICO: Para rubro1, rubro2, tipo y nombre DEBES elegir UNA fila completa de esta lista. No puedes inventar ni mezclar valores de filas distintas:
+${listaRubros}
+${userText ? `Nota del usuario: "${userText}"` : ""}`;
 
   const txt = await callGemini([
     { inline_data: { mime_type: mime, data: b64 } },
@@ -262,11 +346,13 @@ ${userText ? `Usuario dice: "${userText}"` : ""}`;
 }
 
 async function analyzeText(userText) {
+  const listaRubros2 = RUBROS.map((r,i) => `${i+1}. rubro1="${r.r1}" rubro2="${r.r2}" tipo="${r.tipo}" nombre="${r.nombre}"`).join("\n");
   const prompt = `El usuario describe un gasto: "${userText}"
 Devuelve SOLO un JSON válido sin backticks:
-{"fecha":"DD/MM/YYYY","descripcion":"texto","importe":numero,"rubro1":"rubro","rubro2":"categoria","tipo":"Egreso o Ingreso","nombre":"Miguel o Lissette o André o Alessia o Familia o Mamá","confianza":"alta o media o baja"}
+{"fecha":"DD/MM/YYYY","descripcion":"texto corto","importe":numero,"rubro1":"...","rubro2":"...","tipo":"...","nombre":"...","confianza":"alta o media o baja"}
 Hoy: ${formatDate(today)}. Egresos NEGATIVOS. Ingresos POSITIVOS.
-Rubros: ${rubrosStr}`;
+CRÍTICO: Para rubro1, rubro2, tipo y nombre DEBES elegir UNA fila completa de esta lista. No puedes inventar ni mezclar valores de filas distintas:
+${listaRubros2}`;
 
   const txt = await callGemini([{ text: prompt }]);
   return JSON.parse(txt);
@@ -300,12 +386,19 @@ function removeCard(id) { const el=document.getElementById(id); if(el) el.remove
 async function doConfirm() {
   removeCard("confirm-card"); removeCard("edit-options");
   const data = pendingData; pendingData = null; appState = "idle";
-  const parts = data.fecha.split("/");
-  const mes = parseInt(parts[1]), año = parseInt(parts[2]);
+  // Corregir fecha: Gemini a veces devuelve MM/DD en vez de DD/MM
+  // Parsear fecha DD/MM/YYYY y convertir a YYYY-MM-DD para que Google no invierta día/mes
+  let partes = data.fecha.split("/");
+  let dia = parseInt(partes[0]);
+  let mes = parseInt(partes[1]);
+  let año = parseInt(partes[2]);
+  // Formato ISO para evitar ambigüedad en Google Sheets
+  const fechaISO = `${año}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
+  // Concatenar lo deja vacío — Google Sheet lo calcula
   const params = new URLSearchParams({
-    fecha:data.fecha, mes, año, concatenar:`${mes}.${año}`,
-    descripcion:data.descripcion, importe:data.importe,
-    rubro1:data.rubro1, rubro2:data.rubro2, tipo:data.tipo, nombre:data.nombre
+    fecha: fechaISO, mes: mes, año: año,
+    descripcion: data.descripcion, importe: data.importe,
+    rubro1: data.rubro1, rubro2: data.rubro2, tipo: data.tipo, nombre: data.nombre
   });
   addBot("", true);
   try {
@@ -340,6 +433,36 @@ function showEditOptions() {
   const bk=document.createElement("button"); bk.className="btn-cancel"; bk.style.marginTop="4px"; bk.textContent="Volver";
   bk.onclick=()=>{ removeCard("edit-options"); appState="confirm"; showConfirmCard(); }; opts.appendChild(bk);
   document.getElementById("messages").appendChild(opts); scrollBottom();
+}
+
+// ── Opciones de rubro ambiguo ─────────────────
+function mostrarOpcionesRubro(opciones) {
+  addBot("Encontré varias opciones, ¿cuál es la correcta?");
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "margin:4px 0 10px 44px;display:flex;flex-direction:column;gap:6px;";
+  wrap.id = "opciones-rubro";
+  opciones.forEach(r => {
+    const btn = document.createElement("button");
+    btn.className = "edit-opt";
+    btn.innerHTML = `<strong>${r.r1}</strong> · ${r.r2} · ${r.nombre}`;
+    btn.onclick = () => {
+      removeCard("opciones-rubro");
+      Object.assign(pendingData, {rubro1: r.r1, rubro2: r.r2, tipo: r.tipo, nombre: r.nombre});
+      appState = "confirm";
+      addBot("✔ Rubro asignado. Confirma el registro:");
+      showConfirmCard();
+    };
+    wrap.appendChild(btn);
+  });
+  // Botón para abrir selector completo
+  const btnTodos = document.createElement("button");
+  btnTodos.className = "btn-cancel";
+  btnTodos.textContent = "Ver todos los rubros";
+  btnTodos.style.marginTop = "4px";
+  btnTodos.onclick = () => { removeCard("opciones-rubro"); showRubroSelector(); };
+  wrap.appendChild(btnTodos);
+  document.getElementById("messages").appendChild(wrap);
+  scrollBottom();
 }
 
 // ── Rubro selector ────────────────────
